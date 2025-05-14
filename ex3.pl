@@ -33,6 +33,14 @@ atom_concat_words(Atom, Label) :-
     atomic_list_concat(CapWords, ' ', Label).  % Join with a single space
 
 % -------------------------------
+% COUNT USE CASES
+% -------------------------------
+% Predicate to count all use cases in the input
+count_use_cases(Count) :-
+    findall(U, use_case(U), UseCases),
+    length(UseCases, Count).
+
+% -------------------------------
 % 4. GENERATE PLANTUML OUTPUT
 % -------------------------------
 
@@ -82,7 +90,7 @@ save_plantuml_to_file(FileName) :-
     )),
     close(Stream).
 
-% Main function to generate the entire PlantUML diagram
+% Main function to generate the entire PlantUML diagram and display the count of use cases
 generate_plantuml :-
     write_line('@startuml'),
     write_line('left to right direction'),
@@ -92,4 +100,8 @@ generate_plantuml :-
     generate_relationships,
     write_line('center footer uml-diagrams.org'),
     write_line('@enduml'),
-    save_plantuml_to_file('diagram.puml').
+    save_plantuml_to_file('diagram.puml'),
+
+    % Count and display the number of use cases
+    count_use_cases(Count),
+    format('Number of use cases: ~w~n', [Count]).  % Display the count to the console
