@@ -19,7 +19,6 @@ The main goal of this project is to allow users to input use case specifications
 
 - **Prolog (SWI-Prolog)**
 - **PlantUML** (for visualizing the UML diagrams)
-- **SWI-Prolog IDE** (for development and execution)
 
 ## How it Works
 
@@ -66,9 +65,3 @@ The process follows these steps:
     ```
 
     - The program will output the PlantUML code, which you can copy and paste into a `.puml` file to generate the UML diagram using PlantUML.
-
-5. **Visualize the Diagram**:
-    - You can visualize the diagram by running it through the PlantUML tool:
-    ```bash
-    java -jar plantuml.jar yourfile.puml
-    ```
