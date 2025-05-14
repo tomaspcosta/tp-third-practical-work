@@ -46,19 +46,13 @@ The process follows these steps:
 
 1. **Install SWI-Prolog**: Ensure that you have SWI-Prolog installed. If not, you can download it from [here](https://www.swi-prolog.org/Download.html).
 
-2. **Clone the Repository**:
-    ```
-    git clone https://github.com/yourusername/use-case-to-plantuml.git
-    cd use-case-to-plantuml
-    ```
-
-3. **Run the Program**:
+2. **Run the Program**:
     Open the terminal and run the Prolog script:
     ```
     swipl use_case_to_plantuml.pl
     ```
 
-4. **Generate the PlantUML Diagram**:
+3. **Generate the PlantUML Diagram**:
     - After running the Prolog code, you can generate the PlantUML code by calling the `generate_plantuml` predicate:
     ```prolog
     ?- generate_plantuml.
