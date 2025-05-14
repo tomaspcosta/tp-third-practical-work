@@ -1,8 +1,8 @@
 % -------------------------------
 % LOAD THE INPUT FILE
 % -------------------------------
-% Read the input file dynamically (ensure it's named 'input.pl' or 'input.txt' with facts)
-:- [input].  % Assumes input.pl contains the relevant facts.
+% Read the input file dynamically
+:- [input].
 
 % -------------------------------
 % VALIDATION PREDICATES
