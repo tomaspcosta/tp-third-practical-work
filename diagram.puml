@@ -2,17 +2,17 @@
 left to right direction
 skinparam packageStyle rectangle
 actor "Passenger" as P
-actor "Minor\\nPassenger" as MP
-actor "Passenger With Special\\nNeeds" as PSN
-actor "Tour\\nGuide" as TG
+actor "Minor Passenger" as MP
+actor "Passenger With Special Needs" as PSN
+actor "Tour Guide" as TG
 rectangle "<<Business>>\\nAirport" {
-  usecase "Individual Check\\nIn" as IC
-  usecase "Counter Check\\nIn" as CC
-  usecase "Kiosk Check\\nIn" as KC
-  usecase "Group Check\\nIn" as GC
-  usecase "Baggage Check\\nIn" as BC
-  usecase "Security\\nScreening" as SS
-  usecase "Baggage\\nHandling" as BH
+  usecase "Individual Check In" as IC
+  usecase "Counter Check In" as CC
+  usecase "Kiosk Check In" as KC
+  usecase "Group Check In" as GC
+  usecase "Baggage Check In" as BC
+  usecase "Security Screening" as SS
+  usecase "Baggage Handling" as BH
 }
 MP --|> P
 PSN --|> P

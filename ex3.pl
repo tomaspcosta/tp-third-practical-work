@@ -109,10 +109,9 @@ write_line(Line) :- write(Line), nl.
 % Convert atoms (like 'individual_check_in') into a human-readable label format
 % This function takes care of formatting labels for the PlantUML diagram
 atom_concat_words(Atom, Label) :-
-    atomic_list_concat(Words, '_', Atom),
-    maplist(capitalize, Words, CapWords),
-    atomic_list_concat(CapWords, ' ', Flat),
-    reformat_label(Flat, Label).
+    atomic_list_concat(Words, '_', Atom),  % Split the atom by underscores
+    maplist(capitalize, Words, CapWords),  % Capitalize each word
+    atomic_list_concat(CapWords, ' ', Label).  % Join with a single space
 
 % Capitalize the first letter of each word
 capitalize(Word, Capitalized) :-
@@ -190,6 +189,8 @@ save_plantuml_to_file(FileName) :-
 % Main function to generate the entire PlantUML diagram
 % This writes the initial PlantUML code, including the layout direction, package style, actors, use cases, and relationships
 generate_plantuml :-
+    count_use_cases(check_in, Count),
+    format('Number of use cases: ~w~n', [Count]),
     write_line('@startuml'),
     write_line('left to right direction'),
     write_line('skinparam packageStyle rectangle'),
