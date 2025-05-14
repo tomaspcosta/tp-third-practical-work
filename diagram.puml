@@ -1,0 +1,30 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+actor "Passenger" as P
+actor "Minor\\nPassenger" as MP
+actor "Passenger With Special\\nNeeds" as PSN
+actor "Tour\\nGuide" as TG
+rectangle "<<Business>>\\nAirport" {
+  usecase "Individual Check\\nIn" as IC
+  usecase "Counter Check\\nIn" as CC
+  usecase "Kiosk Check\\nIn" as KC
+  usecase "Group Check\\nIn" as GC
+  usecase "Baggage Check\\nIn" as BC
+  usecase "Security\\nScreening" as SS
+  usecase "Baggage\\nHandling" as BH
+}
+MP --|> P
+PSN --|> P
+TG --|> P
+CC --|> IC
+KC --|> IC
+GC ..> IC : <<include>>
+BC ..> IC : <<extend>>
+BH ..> CC : <<extend>>
+BH ..> KC : <<extend>>
+TG -- GC
+P -- IC
+P -- SS
+center footer uml-diagrams.org
+@enduml
