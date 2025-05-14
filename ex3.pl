@@ -7,7 +7,6 @@
 % -------------------------------
 % VALIDATION PREDICATES
 % -------------------------------
-% Ensure that the relations are defined correctly
 valid_generalization(X, Y) :- (actor(X); use_case(X)), (actor(Y); use_case(Y)).
 valid_include(From, To) :- use_case(From), use_case(To).
 valid_extend(From, To) :- use_case(From), use_case(To).
@@ -35,10 +34,12 @@ atom_concat_words(Atom, Label) :-
 % -------------------------------
 % COUNT USE CASES
 % -------------------------------
-% Predicate to count all use cases in the input
-count_use_cases(Count) :-
-    findall(U, use_case(U), UseCases),
-    length(UseCases, Count).
+
+% Count the number of use cases in the input file
+count_use_cases :-
+    findall(_, use_case(_), UseCases),
+    length(UseCases, Count),
+    format('Number of use cases: ~w~n', [Count]).
 
 % -------------------------------
 % 4. GENERATE PLANTUML OUTPUT
@@ -53,8 +54,9 @@ generate_actors :-
 
 % Generate use case definitions within a rectangle
 generate_use_cases :-
-    write_line('rectangle "<<Business>>\\\\nAirport" {'),
-    forall(use_case(U), (
+    scenery(SceneryName),
+    format('rectangle "~w" {~n', [SceneryName]),  % Use the scenery name dynamically
+    forall(use_case_in_scenery(U, SceneryName), (
         atom_concat_words(U, Label),
         format('  usecase "~w" as ~w~n', [Label, U])
     )),
@@ -90,8 +92,11 @@ save_plantuml_to_file(FileName) :-
     )),
     close(Stream).
 
-% Main function to generate the entire PlantUML diagram and display the count of use cases
+% Main function to generate the entire PlantUML diagram
 generate_plantuml :-
+    % Call count_use_cases to display the number of use cases
+    count_use_cases,
+    
     write_line('@startuml'),
     write_line('left to right direction'),
     write_line('skinparam packageStyle rectangle'),
@@ -100,8 +105,4 @@ generate_plantuml :-
     generate_relationships,
     write_line('center footer uml-diagrams.org'),
     write_line('@enduml'),
-    save_plantuml_to_file('diagram.puml'),
-
-    % Count and display the number of use cases
-    count_use_cases(Count),
-    format('Number of use cases: ~w~n', [Count]).  % Display the count to the console
+    save_plantuml_to_file('diagram.puml').
