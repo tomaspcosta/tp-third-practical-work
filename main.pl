@@ -42,12 +42,13 @@ handle_initial_choice(_) :-
     choose_mode.
 
 action_set_system_name :-
+    nl, % ADDED for spacing
     write('Enter system name for the diagram (this will act as the main package): '),
     read_line_to_string(user_input, SystemName),
     ( SystemName == "" ->
         write('System name cannot be empty. Please try again.'), nl,
-        action_set_system_name
-    ; (retract(system(_OldName)) -> true ; true),
+        action_set_system_name % Re-prompt if empty
+    ; (retract(system(_OldName)) -> true ; true), % Remove old system name if exists
       assertz(system(SystemName)),
       format('System (main package) set to "~w".~n', [SystemName])
     ).
@@ -67,13 +68,15 @@ clear_data :-
 % ==================================================
 main_menu :-
     nl,
-    ( system(SName) -> format('Current System/Package: ~w~n', [SName]) ; write('No system/package defined yet.~n')),
+    ( system(SName) -> format('Current System/Package: ~w~n', [SName]) ; write('No system/package defined yet. Consider setting one (Option 6).~n')),
     write('=== Main Menu ==='), nl,
     write('1. Manage Elements (Actors, Use Cases)'), nl,
     write('2. Manage Relationships'), nl,
     write('3. View Diagram Details'), nl,
-    write('4. Diagram Operations (Generate File, System Name)'), nl,
-    write('5. Return to Initial Menu (clears current diagram)'), nl,
+    write('4. Generate .puml Diagram File'), nl,      
+    write('5. Show Use Case Count'), nl,     
+    write('6. Change/Define System Name'), nl,
+    write('7. Return to Initial Menu (clears current diagram)'), nl,
     write('0. Exit Program'), nl,
     write('Choose an option: '),
     read_line_to_string(user_input, Input),
@@ -84,9 +87,11 @@ main_menu :-
 
 handle_main_menu_choice(1) :- manage_elements_menu, main_menu.
 handle_main_menu_choice(2) :- manage_relationships_menu, main_menu.
-handle_main_menu_choice(3) :- view_diagram_details_top_menu, main_menu. % Changed to new top-level view menu
-handle_main_menu_choice(4) :- diagram_operations_menu, main_menu.
-handle_main_menu_choice(5) :- action_return_to_initial_menu.
+handle_main_menu_choice(3) :- view_diagram_details_top_menu, main_menu.
+handle_main_menu_choice(4) :- action_generate_puml_file, main_menu.
+handle_main_menu_choice(5) :- count_use_cases_in_system_detail, main_menu.
+handle_main_menu_choice(6) :- action_set_system_name, main_menu.
+handle_main_menu_choice(7) :- action_return_to_initial_menu.
 handle_main_menu_choice(0) :- action_exit_program.
 handle_main_menu_choice(_) :- write('Invalid option number. Please try again.'), nl, main_menu.
 
@@ -318,12 +323,11 @@ view_specific_details_menu :- % Renamed from view_diagram_details_menu
     write('--- List Specific Details ---'), nl,
     write('1. List All Actors'), nl,
     write('2. List All Use Cases'), nl,
-    write('3. Count Use Cases in System/Package'), nl,
-    write('4. List Associations (Actor -- Use Case)'), nl,
-    write('5. List <<include>> Relations'), nl,
-    write('6. List <<extend>> Relations'), nl,
-    write('7. List Actor Generalizations (Actor --|> Actor)'), nl,
-    write('8. List Use Case Generalizations (Use Case --|> Use Case)'), nl,
+    write('3. List Associations (Actor -- Use Case)'), nl,
+    write('4. List <<include>> Relations'), nl,
+    write('5. List <<extend>> Relations'), nl,
+    write('6. List Actor Generalizations (Actor --|> Actor)'), nl,
+    write('7. List Use Case Generalizations (Use Case --|> Use Case)'), nl,
     % "List Everything" is now one level up
     write('0. Back to View Diagram Details Menu'), nl,
     write('Choose an option: '),
@@ -335,12 +339,11 @@ view_specific_details_menu :- % Renamed from view_diagram_details_menu
 
 process_specific_details_choice(1) :- list_all_actors_detail, view_specific_details_menu.
 process_specific_details_choice(2) :- list_all_use_cases_detail, view_specific_details_menu.
-process_specific_details_choice(3) :- count_use_cases_in_system_detail, view_specific_details_menu.
-process_specific_details_choice(4) :- list_all_associations_detail, view_specific_details_menu.
-process_specific_details_choice(5) :- list_all_includes_detail, view_specific_details_menu.
-process_specific_details_choice(6) :- list_all_extends_detail, view_specific_details_menu.
-process_specific_details_choice(7) :- list_all_actor_generalizations_detail, view_specific_details_menu.
-process_specific_details_choice(8) :- list_all_uc_generalizations_detail, view_specific_details_menu.
+process_specific_details_choice(3) :- list_all_associations_detail, view_specific_details_menu.
+process_specific_details_choice(4) :- list_all_includes_detail, view_specific_details_menu.
+process_specific_details_choice(5) :- list_all_extends_detail, view_specific_details_menu.
+process_specific_details_choice(6) :- list_all_actor_generalizations_detail, view_specific_details_menu.
+process_specific_details_choice(7) :- list_all_uc_generalizations_detail, view_specific_details_menu.
 process_specific_details_choice(0). % Back to view_diagram_details_top_menu
 process_specific_details_choice(_) :- write('Invalid choice.'), nl, view_specific_details_menu.
 
@@ -417,30 +420,9 @@ list_everything_detail :-
     list_all_uc_generalizations_detail,
     write('===== End of Summary ====='), nl.
 
-% ==================================================
-% 4. Diagram Operations Menu & Actions
-% ==================================================
-diagram_operations_menu :-
-    nl,
-    write('--- Diagram Operations ---'), nl,
-    write('1. Generate .puml Diagram File'), nl,
-    write('2. Change/Define System Name (Main Package)'), nl,
-    write('0. Back to Main Menu'), nl,
-    write('Choose an option: '),
-    read_line_to_string(user_input, Input),
-    ( atom_number(Input, Choice) ->
-        process_diagram_operations_choice(Choice)
-    ; write('Invalid input. Please enter a number.'), nl, diagram_operations_menu
-    ).
-
-process_diagram_operations_choice(1) :- action_generate_puml_file, diagram_operations_menu.
-process_diagram_operations_choice(2) :- action_set_system_name, diagram_operations_menu.
-process_diagram_operations_choice(0).
-process_diagram_operations_choice(_) :- write('Invalid option. Please try again.'), nl, diagram_operations_menu.
-
 action_generate_puml_file :-
     ( \+ system(_) ->
-        write('No system/package defined. Please define a system name first.'), nl
+        write('No system/package defined. Please define a system name first (Main Menu option 6).'), nl
     ; system(SystemName),
       format('The default filename will be "~w.puml".~n', [SystemName]),
       write('Enter a custom filename (without .puml extension) or press Enter to use the default (or 0 to cancel): '),
@@ -464,7 +446,7 @@ list_items_or_prompt_add(TypeAtom, PluralName, _SingularName, MinCount) :-
     findall(ItemNameVariable, Goal, ItemsList),
     length(ItemsList, Count),
     ( Count < MinCount ->
-        format('Not enough ~w defined (need at least ~d, found ~d). Please add more ~w first.~n', [PluralName, MinCount, Count, PluralName]),
+        format('Not enough ~w defined (need at least ~d, found ~d). Please add more ~w first from "Manage Elements" menu.~n', [PluralName, MinCount, Count, PluralName]),
         fail
     ; write(PluralName), write(':'), nl,
       print_list_indexed(ItemsList, 1),
