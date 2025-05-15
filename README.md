@@ -11,36 +11,33 @@
 
 ## Project Description
 
-This Prolog project converts Use Case Diagram (UseCaseDG) specifications into PlantUML code. The program takes actor and use case definitions, relationships (such as generalization, inclusion, extension, and associations), and generates the corresponding PlantUML code for visualizing the use case diagram.
+This Prolog project provides an interactive console-based system to create Use Case Diagrams and generate corresponding PlantUML code. Users can define actors, use cases, relationships, and system boundaries dynamically through a menu-driven interface. The program ensures data validation and generates `.puml` files for visualizing the diagrams using PlantUML.
 
-The main goal of this project is to allow users to input use case specifications in a Prolog-based syntax and automatically generate a corresponding UML diagram using PlantUML, a widely-used tool for creating UML diagrams.
+The main goal of this project is to simplify the process of creating UML Use Case Diagrams by providing a user-friendly interface and automating the generation of PlantUML code.
 
 ## Technologies Used
 
-- **Prolog (SWI-Prolog)**
-- **PlantUML** (for visualizing the UML diagrams)
+- **Prolog (SWI-Prolog)**: For logic programming and data management.
+- **PlantUML**: For rendering UML diagrams from the generated `.puml` files.
 
 ## How it Works
 
-The program defines a set of Prolog predicates to manage actors, use cases, relationships, and packages. It allows the user to:
-- Define actors and use cases.
-- Specify relationships between actors and use cases (e.g., generalization, inclusion, extension, and associations).
-- Generate the PlantUML syntax to visualize these specifications as a UML use case diagram.
-
-The process follows these steps:
-1. **Insert Use Case Specification**: Users define actors, use cases, and relationships using Prolog predicates.
-2. **Validate Relations**: The program ensures all relationships are valid by checking that the actors and use cases exist in the database.
-3. **Generate PlantUML Code**: Based on the defined specifications, the program generates the PlantUML code that can be used to render the diagram.
-4. **Count Use Cases in Packages**: Users can query the number of use cases in a specific package.
+The program follows these steps:
+1. **Interactive Menu**: Users interact with the program through a console-based menu system.
+2. **Define Elements**: Users can add actors, use cases, and relationships (e.g., associations, generalizations, includes, and extends).
+3. **Validate Input**: The program ensures all relationships are valid and that actors or use cases exist before creating relationships.
+4. **Generate PlantUML Code**: Users can generate `.puml` files containing the PlantUML syntax for the defined diagram.
+5. **View Diagram Details**: Users can view all defined elements and relationships in a structured format.
 
 ## Features
 
-- **Actor and Use Case Definition**: Easily define actors and use cases within the system.
-- **Relationship Handling**: Supports generalizations, includes, extends, and associations between actors and use cases.
-- **Package Grouping**: Organize use cases into packages to structure the diagram.
-- **PlantUML Code Generation**: Automatically generates PlantUML code to represent the use case diagram.
-- **Validation**: Ensures all relationships are correctly defined and that actors or use cases are valid.
-- **Extensibility**: Can be extended to support additional types of relationships or UML diagram elements.
+- **Interactive Menu**: A user-friendly menu system for managing elements and relationships.
+- **Dynamic Input**: Add actors, use cases, and relationships interactively.
+- **System Boundary**: Define a system or package to group use cases.
+- **Relationship Handling**: Supports associations, generalizations, includes, and extends.
+- **Validation**: Ensures all relationships are valid and prevents duplicate entries.
+- **Diagram Export**: Generates `.puml` files for visualization in PlantUML.
+- **View Details**: List all elements and relationships or view specific details (e.g., actors, use cases, associations).
 
 ## How to Run
 
@@ -48,14 +45,32 @@ The process follows these steps:
 
 2. **Run the Program**:
     Open the terminal and run the Prolog script:
-    ```
-    swipl use_case_to_plantuml.pl
-    ```
-
-3. **Generate the PlantUML Diagram**:
-    - After running the Prolog code, you can generate the PlantUML code by calling the `generate_plantuml` predicate:
-    ```prolog
-    ?- generate_plantuml.
+    ```bash
+    swipl ex3.pl
     ```
 
-    - The program will output the PlantUML code, which you can copy and paste into a `.puml` file to generate the UML diagram using PlantUML.
+3. **Interactive Menu**:
+    - The program will start with an interactive menu. Follow the prompts to add elements, define relationships, and generate diagrams.
+    - Example menu options include:
+      - Add actors and use cases.
+      - Define relationships (e.g., associations, includes, extends, generalizations).
+      - View diagram details.
+      - Generate a `.puml` file.
+
+4. **Generate the PlantUML Diagram**:
+    - After defining the diagram, choose the option to generate a `.puml` file.
+    - Open the `.puml` file in PlantUML to visualize the diagram.
+
+## Example Workflow
+
+1. Start the program:
+    ```bash
+    swipl ex3.pl
+    ```
+2. Define a system name (e.g., "Library System").
+3. Add actors (e.g., "Librarian", "Member").
+4. Add use cases (e.g., "Borrow Book", "Return Book").
+5. Define relationships:
+    - Associate "Librarian" with "Borrow Book".
+    - Include "Search Catalog" in "Borrow Book".
+6. Generate the `.puml` file and visualize it using PlantUML.
