@@ -1,4 +1,4 @@
-# Use Case to PlantUML Generator (Prolog)
+# Use Case Diagram Generator (Prolog)
 
 ## Table of Contents
 
@@ -46,7 +46,7 @@ The program follows these steps:
 2. **Run the Program**:
     Open the terminal and run the Prolog script:
     ```bash
-    swipl ex3.pl
+    swipl main.pl
     ```
 
 3. **Interactive Menu**:
@@ -65,7 +65,7 @@ The program follows these steps:
 
 1. Start the program:
     ```bash
-    swipl ex3.pl
+    swipl main.pl
     ```
 2. Define a system name (e.g., "Library System").
 3. Add actors (e.g., "Librarian", "Member").
