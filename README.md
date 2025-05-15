@@ -7,7 +7,6 @@
 - [How it Works](#how-it-works)
 - [Features](#features)
 - [How to Run](#how-to-run)
-- [Authors](#authors)
 
 ## Project Description
 
