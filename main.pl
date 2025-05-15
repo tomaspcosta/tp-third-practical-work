@@ -96,7 +96,7 @@ action_return_to_initial_menu :-
     choose_mode.
 
 action_exit_program :-
-    write('Exiting Use Case Diagram Builder. Goodbye!'), nl.
+    write('Goodbye!'), nl.
 
 % ==================================================
 % 1. Manage Elements Menu & Actions
