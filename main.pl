@@ -16,7 +16,6 @@
 % Entry Point & Initial Menu
 % -------------------------------
 start :-
-    write('Welcome to the Use Case Diagram Builder'), nl,
     choose_mode.
 
 choose_mode :-
