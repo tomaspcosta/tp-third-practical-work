@@ -101,7 +101,7 @@ main_menu :-
         ansi_style(bold, B_Sys), ansi_style(fg_green, G_Sys),
         format('~s~sCurrent System/Package: ~w~s~n', [B_Sys, G_Sys, SName, R_Sys])
     ;   ansi_style(fg_yellow, Y_Sys),
-        format('~sNo system/package defined yet. Consider setting one (Option 7).~s~n', [Y_Sys,R_Sys]) % Note: Option number for system name changed
+        format('~sNo system/package defined yet. Consider setting one (Option 7).~s~n', [Y_Sys,R_Sys])
     ),
     ansi_style(bold, B), ansi_style(fg_cyan, C), ansi_style(reset, R),
     format('~s~s=== Main Menu ===~s~n', [B, C, R]),
@@ -243,14 +243,14 @@ process_manage_relationships_choice(_) :-
 
 % Adds an association between an actor and a use case.
 action_add_association :-
-    ( list_actors_or_prompt_add -> % This predicate will handle its own error color if needed
+    ( list_actors_or_prompt_add ->
         ansi_style(fg_yellow, Y), ansi_style(reset, R),
         format('~sChoose actor by number for association (or 0 to cancel): ~s', [Y, R]),
         read_line_to_string(user_input, AI),
         ( AI == "0" -> true
         ; atom_number(AI, AIndex), get_nth_actor(AIndex, Actor) ->
-            ( list_use_cases_or_prompt_add -> % This predicate will handle its own error color
-                ansi_style(fg_yellow, Y2), ansi_style(reset, R2), % New style vars to avoid conflict
+            ( list_use_cases_or_prompt_add ->
+                ansi_style(fg_yellow, Y2), ansi_style(reset, R2),
                 format('~sChoose use case by number for association (or 0 to cancel): ~s', [Y2, R2]),
                 read_line_to_string(user_input, UI),
                 ( UI == "0" -> true
@@ -403,9 +403,9 @@ add_use_case_generalization_interaction :-
     ).
 
 % ==================================================
-% 3. View Diagram Details Menu & Actions % This comment is from your original, corresponds to new option 4
+% Section for Viewing Diagram Details (Main Menu Option 4)
 % ==================================================
-% This menu lets you see everything or just specific details about your diagram.
+% Provides options to view all or specific details of the diagram.
 view_diagram_details_top_menu :-
     nl,
     ansi_style(bold, B), ansi_style(fg_blue, BLU), ansi_style(reset, R),
@@ -422,7 +422,7 @@ view_diagram_details_top_menu :-
       format('~sInvalid input. Please enter a number.~s~n', [RE, RR]), view_diagram_details_top_menu
     ).
 
-% This part handles what you want to see in the details menu.
+% Handles user selection for viewing diagram details.
 process_view_details_top_choice(1) :- list_everything_detail, view_diagram_details_top_menu.
 process_view_details_top_choice(2) :- view_specific_details_menu, view_diagram_details_top_menu.
 process_view_details_top_choice(0).
@@ -430,7 +430,7 @@ process_view_details_top_choice(_) :-
     ansi_style(fg_red, RE), ansi_style(reset, R),
     format('~sInvalid choice.~s~n', [RE, R]), view_diagram_details_top_menu.
 
-% This menu lets you pick exactly what you want to list (actors, use cases, etc).
+% Provides options to list specific diagram components.
 view_specific_details_menu :-
     nl,
     ansi_style(bold, B), ansi_style(fg_blue, BLU), ansi_style(reset, R),
@@ -452,7 +452,7 @@ view_specific_details_menu :-
       format('~sInvalid input. Please enter a number.~s~n', [RE, RR]), view_specific_details_menu
     ).
 
-% This part handles which specific list you want to see.
+% Handles user selection for listing specific details.
 process_specific_details_choice(1) :- list_all_actors_detail, view_specific_details_menu.
 process_specific_details_choice(2) :- list_all_use_cases_detail, view_specific_details_menu.
 process_specific_details_choice(3) :- list_all_associations_detail, view_specific_details_menu.
@@ -465,7 +465,7 @@ process_specific_details_choice(_) :-
     ansi_style(fg_red, RE), ansi_style(reset, R),
     format('~sInvalid choice.~s~n', [RE, R]), view_specific_details_menu.
 
-% This function prints all the actors you have.
+% Prints all defined actors.
 list_all_actors_detail :-
     nl, ansi_style(bold, B), ansi_style(fg_magenta, M), ansi_style(reset, R),
     format('~s~s--- Actors ---~s~n', [B, M, R]),
@@ -474,7 +474,7 @@ list_all_actors_detail :-
     ; print_list_indexed(Actors, 1)
     ), nl.
 
-% This one prints all the use cases.
+% Prints all defined use cases.
 list_all_use_cases_detail :-
     nl, ansi_style(bold, B), ansi_style(fg_magenta, M), ansi_style(reset, R),
     format('~s~s--- Use Cases ---~s~n', [B, M, R]),
@@ -483,19 +483,19 @@ list_all_use_cases_detail :-
     ; print_list_indexed(UseCases, 1)
     ), nl.
 
-% This shows how many use cases are in your system.
+% Shows the count of use cases in the defined system.
 count_use_cases_in_system_detail :-
     nl, ansi_style(bold, B), ansi_style(fg_magenta, M), ansi_style(reset, R),
     format('~s~s--- Count of Use Cases in System/Package ---~s~n', [B, M, R]),
     ( system(SystemName) ->
         findall(UseCase, use_case(UseCase), UseCases),
         length(UseCases, Count),
-        ansi_style(reset, RS), % Use a local reset variable
+        ansi_style(reset, RS),
         format('~sThe system/package "~w" contains ~d use case(s).~s~n', [RS, SystemName, Count, RS])
     ; ansi_style(fg_yellow, Y), ansi_style(reset, RY), format('~sNo system/package defined. Cannot count use cases.~s~n', [Y,RY])
     ), nl.
 
-% list_all_associations_detail0: Lists all actor usecase associations 
+% list_all_associations_detail/0: Lists all actor-use case associations.
 list_all_associations_detail :-
     nl, ansi_style(bold, B), ansi_style(fg_magenta, M), ansi_style(reset, R),
     format('~s~s--- Associations (Actor -- Use Case) ---~s~n', [B, M, R]),
@@ -513,7 +513,7 @@ list_all_includes_detail :-
     ; print_relationship_list_indexed(Includes, 1, '..> <<include>>')
     ), nl.
 
-% list_all_extends_detail/0: Lists all extend relationships. 
+% list_all_extends_detail/0: Lists all extend relationships.
 list_all_extends_detail :-
     nl, ansi_style(bold, B), ansi_style(fg_magenta, M), ansi_style(reset, R),
     format('~s~s--- <<extend>> Relations (Extending UC ..> Base UC) ---~s~n', [B, M, R]),
@@ -522,7 +522,7 @@ list_all_extends_detail :-
     ; print_relationship_list_indexed(Extends, 1, '..> <<extend>>')
     ), nl.
 
-% list_all_actor_generalizations_detail/0: Lists all actor generalizations. 
+% list_all_actor_generalizations_detail/0: Lists all actor generalizations.
 list_all_actor_generalizations_detail :-
     nl, ansi_style(bold, B), ansi_style(fg_magenta, M), ansi_style(reset, R),
     format('~s~s--- Actor Generalizations (Child Actor --|> Parent Actor) ---~s~n', [B, M, R]),
@@ -531,7 +531,7 @@ list_all_actor_generalizations_detail :-
     ; print_relationship_list_indexed(ActorGens, 1, '--|>')
     ), nl.
 
-% list_all_uc_generalizations_detail/0: Lists all use case generalizations. 
+% list_all_uc_generalizations_detail/0: Lists all use case generalizations.
 list_all_uc_generalizations_detail :-
     nl, ansi_style(bold, B), ansi_style(fg_magenta, M), ansi_style(reset, R),
     format('~s~s--- Use Case Generalizations (Child UC --|> Parent UC) ---~s~n', [B, M, R]),
@@ -540,13 +540,13 @@ list_all_uc_generalizations_detail :-
     ; print_relationship_list_indexed(UCGens, 1, '--|>')
     ), nl.
 
-% list_everything_detail/0: Lists all elements and relationships in the diagram. 
+% list_everything_detail/0: Lists all elements and relationships in the diagram.
 list_everything_detail :-
     nl, ansi_style(bold, B), ansi_style(fg_cyan, C), ansi_style(reset, R),
     format("~s~s=============================~s~n", [B,C,R]),
     format("~s~s=== Full Diagram Summary ===~s~n", [B,C,R]),
     format("~s~s=============================~s~n", [B,C,R]),
-    ansi_style(reset, R_Sys), % Local reset for system name line
+    ansi_style(reset, R_Sys), 
     (system(SName) ->
         ansi_style(bold, B_Sys), ansi_style(fg_green, G_Sys),
         format('~s~sSystem/Package: ~w~s~n', [B_Sys, G_Sys, SName, R_Sys])
@@ -566,7 +566,7 @@ list_everything_detail :-
 
 
 % ==================================================
-% Menu for Removing Elements/Relationships (previously section 7, now integrated into Main Menu option 3)
+% Section for Removing Elements and Relationships.
 % ==================================================
 manage_remove_menu :-
     nl,
@@ -606,12 +606,12 @@ action_remove_actor :-
     format('~s~s--- Remove Actor ---~s~n', [B, M, R]),
     findall(Actor, actor(Actor), Actors),
     ( Actors == [] -> ansi_style(fg_yellow, Y), ansi_style(reset, RY), format('~sNo actors to remove.~s~n', [Y,RY])
-    ; ansi_style(reset, RS), write(RS), write('Actors:'), nl, % Ensure list header is default
+    ; ansi_style(reset, RS), write(RS), write('Actors:'), nl,
       print_list_indexed(Actors, 1),
       ansi_style(fg_yellow, YP), ansi_style(reset, RP),
       format('~sEnter number of actor to remove (or 0 to cancel): ~s', [YP, RP]),
       read_line_to_string(user_input, IndexStr),
-      ( IndexStr == "0" -> ansi_style(fg_yellow, YS), ansi_style(reset, RS), format('~sCancelled.~s~n', [YS,RS])
+      ( IndexStr == "0" -> ansi_style(fg_yellow, YS), ansi_style(reset, RS_Cancel), format('~sCancelled.~s~n', [YS,RS_Cancel]) % Changed RS to RS_Cancel
       ; atom_number(IndexStr, Index), get_nth_item(actor, Index, ActorToRemove) ->
           retract(actor(ActorToRemove)),
           retractall(association(ActorToRemove, _)),
@@ -635,7 +635,7 @@ action_remove_use_case :-
       ansi_style(fg_yellow, YP), ansi_style(reset, RP),
       format('~sEnter number of use case to remove (or 0 to cancel): ~s', [YP, RP]),
       read_line_to_string(user_input, IndexStr),
-      ( IndexStr == "0" -> ansi_style(fg_yellow, YS), ansi_style(reset, RS), format('~sCancelled.~s~n', [YS,RS])
+      ( IndexStr == "0" -> ansi_style(fg_yellow, YS), ansi_style(reset, RS_Cancel), format('~sCancelled.~s~n', [YS,RS_Cancel])
       ; atom_number(IndexStr, Index), get_nth_item(use_case, Index, UCToRemove) ->
           retract(use_case(UCToRemove)),
           retractall(association(_, UCToRemove)),
@@ -678,7 +678,7 @@ remove_relationship_interactive(Functor, DisplayName, Separator) :-
         ansi_style(fg_yellow, YP), ansi_style(reset, RP),
         format('~sEnter number of relationship to remove (or 0 to cancel): ~s', [YP, RP]),
         read_line_to_string(user_input, IndexStr),
-        ( IndexStr == "0" -> ansi_style(fg_yellow, YS), ansi_style(reset, RS), format('~sCancelled.~s~n', [YS,RS])
+        ( IndexStr == "0" -> ansi_style(fg_yellow, YS), ansi_style(reset, RS_Cancel), format('~sCancelled.~s~n', [YS,RS_Cancel])
         ; atom_number(IndexStr, Index), nth1(Index, Relationships, RelToRemove) ->
             retract(RelToRemove),
             RelToRemove =.. [_, RelArg1, RelArg2],
@@ -689,16 +689,16 @@ remove_relationship_interactive(Functor, DisplayName, Separator) :-
         )
     ).
 
-% action_generate_puml_file/0: Prompts for filename and generates the PlantUML file. 
+% action_generate_puml_file/0: Prompts for filename and generates the PlantUML file.
 action_generate_puml_file :-
     ( \+ system(_) ->
         ansi_style(fg_red, RE), ansi_style(reset, R),
-        format('~sNo system/package defined. Please define a system name first (Main Menu option 7).~s~n', [RE, R]) % Updated option number
+        format('~sNo system/package defined. Please define a system name first (Main Menu option 7).~s~n', [RE, R])
     ; system(SystemName),
       ansi_style(reset, RS),
       format('~sThe default filename will be "~w.puml".~s~n', [RS, SystemName, RS]),
-      ansi_style(fg_yellow, YP), ansi_style(reset, R),
-      format('~sEnter a custom filename (without .puml extension) or press Enter to use the default (or 0 to cancel): ~s', [YP, R]),
+      ansi_style(fg_yellow, YP), ansi_style(reset, R_Prompt), % Changed R to R_Prompt
+      format('~sEnter a custom filename (without .puml extension) or press Enter to use the default (or 0 to cancel): ~s', [YP, R_Prompt]),
       read_line_to_string(user_input, CustomNameInput),
       ( CustomNameInput == "0" -> true
       ; CustomNameInput == "" -> generate_puml_file(SystemName)
@@ -707,16 +707,16 @@ action_generate_puml_file :-
     ).
 
 % -------------------------------
-% Helpers (Listing, Nth item, Sanitization)
+% Helpers
 % -------------------------------
 
-% list_actors_or_prompt_add/0, list_use_cases_or_prompt_add/0: Ensures enough actors/use cases exist for selection.  (example)
+% list_actors_or_prompt_add/0, list_use_cases_or_prompt_add/0: Ensures enough actors/use cases exist for selection.
 list_actors_or_prompt_add :- list_items_or_prompt_add(actor, 'actors', 'actor', 1).
 list_actors_or_prompt_add(MinCount) :- list_items_or_prompt_add(actor, 'actors', 'actor', MinCount).
 list_use_cases_or_prompt_add :- list_items_or_prompt_add(use_case, 'use cases', 'use case', 1).
 list_use_cases_or_prompt_add(MinCount) :- list_items_or_prompt_add(use_case, 'use cases', 'use case', MinCount).
 
-% list_items_or_prompt_add/4: Lists items of a given type, or prompts to add more if not enough. 
+% list_items_or_prompt_add/4: Lists items of a given type, or prompts to add more if not enough.
 list_items_or_prompt_add(TypeAtom, PluralName, _SingularName, MinCount) :-
     Goal =.. [TypeAtom, ItemNameVariable],
     findall(ItemNameVariable, Goal, ItemsList),
@@ -726,16 +726,16 @@ list_items_or_prompt_add(TypeAtom, PluralName, _SingularName, MinCount) :-
         format('~sNot enough ~w defined (need at least ~d, found ~d). Please add more ~w first from "Manage Elements" menu.~s~n', [RE, PluralName, MinCount, Count, PluralName, R]),
         fail
     ; ansi_style(reset, RS),
-      format('~s~w:~s~n', [RS, PluralName, RS]), % Default color for "Actors:", "Use Cases:"
+      format('~s~w:~s~n', [RS, PluralName, RS]),
       print_list_indexed(ItemsList, 1),
       true
     ).
 
-% print_list_indexed/2: Prints a list with indices. 
+% print_list_indexed/2: Prints a list with indices.
 print_list_indexed([], _).
 print_list_indexed([H|T], N) :-
-    ansi_style(reset, R), % Ensure default color for list items
-    format('~s~d. ~w~s~n', [R, N, H, R]), % Added reset at end of line
+    ansi_style(reset, R),
+    format('~s~d. ~w~s~n', [R, N, H, R]),
     N1 is N + 1,
     print_list_indexed(T, N1).
 
@@ -743,17 +743,17 @@ print_list_indexed([H|T], N) :-
 print_relationship_list_indexed([], _, _).
 print_relationship_list_indexed([Rel|T], N, Separator) :-
     Rel =.. [_Functor, Arg1Rel, Arg2Rel],
-    ansi_style(reset, R), % Ensure default color for list items
-    format('~s~d. ~w ~w ~w~s~n', [R, N, Arg1Rel, Separator, Arg2Rel, R]), % Added reset at end of line
+    ansi_style(reset, R),
+    format('~s~d. ~w ~w ~w~s~n', [R, N, Arg1Rel, Separator, Arg2Rel, R]),
     N1 is N + 1,
     print_relationship_list_indexed(T, N1, Separator).
 
 
-% get_nth_actor/2, get_nth_use_case/2: Retrieves the N-th actor/use case. 
+% get_nth_actor/2, get_nth_use_case/2: Retrieves the N-th actor/use case.
 get_nth_actor(N, Actor) :- get_nth_item(actor, N, Actor).
 get_nth_use_case(N, UseCase) :- get_nth_item(use_case, N, UseCase).
 
-% get_nth_item/3: Retrieves the N-th item of a given type (for single elements). 
+% get_nth_item/3: Retrieves the N-th item of a given type (for single elements).
 get_nth_item(TypeAtom, N, ChosenItem) :-
     Goal =.. [TypeAtom, ItemNameVariable],
     findall(ItemNameVariable, Goal, ItemsList),
@@ -762,7 +762,7 @@ get_nth_item(TypeAtom, N, ChosenItem) :-
     ; !, fail
     ).
 
-% safe_name/2: Converts a name to a PlantUML-safe identifier. 
+% safe_name/2: Converts a name to a PlantUML-safe identifier.
 safe_name(InputName, SafeID) :-
     (   string(InputName) -> StringForProcessing = InputName
     ;   atom(InputName)   -> atom_string(InputName, StringForProcessing)
@@ -776,19 +776,19 @@ safe_name(InputName, SafeID) :-
     remove_non_alnum_underscore(UnderscoredString, CleanedString),
     ensure_valid_plantuml_id(CleanedString, LowercaseString, SafeID).
 
-% replace_problematic_chars/2: Replaces spaces, dashes, tabs, and newlines with underscores. 
+% replace_problematic_chars/2: Replaces spaces, dashes, tabs, and newlines with underscores.
 replace_problematic_chars(In, Out) :-
     replace_chars(In, " ", "_", Temp1),
     replace_chars(Temp1, "-", "_", Temp2),
     replace_chars(Temp2, "\t", "_", Temp3),
     replace_chars(Temp3, "\n", "_", Out).
 
-% replace_chars/4: Helper for replacing characters in a string. 
+% replace_chars/4: Helper for replacing characters in a string.
 replace_chars(Input, ToReplace, Replacement, Output) :-
     split_string(Input, ToReplace, ToReplace, Parts),
     atomic_list_concat(Parts, Replacement, Output).
 
-% remove_non_alnum_underscore/2: Removes all characters except alphanumeric and underscore. 
+% remove_non_alnum_underscore/2: Removes all characters except alphanumeric and underscore.
 remove_non_alnum_underscore(InputString, OutputString) :-
     string_chars(InputString, Chars),
     include(is_plantuml_safe_char, Chars, SafeChars),
@@ -797,7 +797,7 @@ remove_non_alnum_underscore(InputString, OutputString) :-
 is_plantuml_safe_char(Char) :-
     char_type(Char, alnum) ; Char == '_'.
 
-% ensure_valid_plantuml_id/3: Ensures the identifier is valid for PlantUML. 
+% ensure_valid_plantuml_id/3: Ensures the identifier is valid for PlantUML.
 ensure_valid_plantuml_id(CleanedString, OriginalLowerString, SafeID) :-
     ( CleanedString == "" ->
         string_chars(OriginalLowerString, OriginalChars),
@@ -817,7 +817,7 @@ ensure_valid_plantuml_id(CleanedString, OriginalLowerString, SafeID) :-
 % Generate .puml file
 % -------------------------------
 
-% generate_puml_file/1: Generates a PlantUML file with the current diagram. 
+% generate_puml_file/1: Generates a PlantUML file with the current diagram.
 generate_puml_file(BaseFileNameAtomOrString) :-
     ( atom(BaseFileNameAtomOrString) -> BaseFileName = BaseFileNameAtomOrString
     ; string(BaseFileNameAtomOrString) -> atom_string(BaseFileName, BaseFileNameAtomOrString)
@@ -828,14 +828,14 @@ generate_puml_file(BaseFileNameAtomOrString) :-
         format('~sError: System name not defined. Cannot generate file.~s~n', [RE,R])
     ; format(atom(FileName), '~w.puml', [BaseFileName]),
       open(FileName, write, Stream),
-      write_puml_content(Stream), % This writes to file, so no console ANSI codes here
+      write_puml_content(Stream),
       close(Stream),
       (system(SysName) -> DiagramName = SysName ; DiagramName = BaseFileName),
-      ansi_style(fg_green, G), ansi_style(reset, R_Succ), % Use R_Succ to avoid conflict
+      ansi_style(fg_green, G), ansi_style(reset, R_Succ),
       format('~sDiagram "~w" saved to file "~w"~s~n', [G, DiagramName, FileName, R_Succ])
     ).
 
-% write_puml_content/1: Writes the PlantUML content to the given stream. 
+% write_puml_content/1: Writes the PlantUML content to the given stream.
 write_puml_content(Stream) :-
     write(Stream, '@startuml'), nl(Stream),
     ( system(SysName) -> format(Stream, "title Use Case Diagram for ~w~n~n", [SysName])
@@ -853,11 +853,11 @@ write_puml_content(Stream) :-
     write_actor_generalizations_puml(Stream), nl(Stream),
     write(Stream, "@enduml"), nl(Stream).
 
-% write_actors_puml/1: Writes all actors in PlantUML format. 
+% write_actors_puml/1: Writes all actors in PlantUML format.
 write_actors_puml(Stream) :-
     forall(actor(A), ( safe_name(A, SafeA), format(Stream, 'actor "~w" as ~w~n', [A, SafeA]) )).
 
-% write_system_boundary_puml/1: Writes the system/package boundary and use cases. 
+% write_system_boundary_puml/1: Writes the system/package boundary and use cases.
 write_system_boundary_puml(Stream) :-
     ( system(SystemName) ->
         safe_name(SystemName, SafeSystemNameId),
@@ -867,22 +867,22 @@ write_system_boundary_puml(Stream) :-
     ; forall(use_case(U), ( safe_name(U, SafeU), format(Stream, 'usecase "~w" as ~w~n', [U, SafeU]) ))
     ).
 
-% write_associations_puml/1: Writes all actor-use case associations. 
+% write_associations_puml/1: Writes all actor-use case associations.
 write_associations_puml(Stream) :-
     forall(association(Actor, UseCase), ( safe_name(Actor, SafeActor), safe_name(UseCase, SafeUseCase), format(Stream, '~w -- ~w~n', [SafeActor, SafeUseCase]) )).
 
-% write_includes_puml/1: Writes all include relationships. 
+% write_includes_puml/1: Writes all include relationships.
 write_includes_puml(Stream) :-
     forall(include(BaseUC, IncludedUC), ( safe_name(BaseUC, SafeBaseUC), safe_name(IncludedUC, SafeIncludedUC), format(Stream, '~w ..> ~w : <<include>>~n', [SafeBaseUC, SafeIncludedUC]) )).
 
-% write_extends_puml/1: Writes all extend relationships. 
+% write_extends_puml/1: Writes all extend relationships.
 write_extends_puml(Stream) :-
     forall(extend(ExtendingUC, BaseUC), ( safe_name(ExtendingUC, SafeExtendingUC), safe_name(BaseUC, SafeBaseUC), format(Stream, '~w ..> ~w : <<extend>>~n', [SafeExtendingUC, SafeBaseUC]) )).
 
-% write_uc_generalizations_puml/1: Writes all use case generalizations. 
+% write_uc_generalizations_puml/1: Writes all use case generalizations.
 write_uc_generalizations_puml(Stream) :-
     forall(generalization(ChildUC, ParentUC), ( safe_name(ChildUC, SafeChildUC), safe_name(ParentUC, SafeParentUC), format(Stream, '~w --|> ~w~n', [SafeChildUC, SafeParentUC]) )).
 
-% write_actor_generalizations_puml/1: Writes all actor generalizations. 
+% write_actor_generalizations_puml/1: Writes all actor generalizations.
 write_actor_generalizations_puml(Stream) :-
     forall(actor_generalization(ChildActor, ParentActor), ( safe_name(ChildActor, SafeChildActor), safe_name(ParentActor, SafeParentActor), format(Stream, '~w --|> ~w~n', [SafeChildActor, SafeParentActor]) )).
