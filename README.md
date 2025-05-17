@@ -69,7 +69,5 @@ The program follows these steps:
 2. Define a system name (e.g., "Library System").
 3. Add actors (e.g., "Librarian", "Member").
 4. Add use cases (e.g., "Borrow Book", "Return Book").
-5. Define relationships:
-    - Associate "Librarian" with "Borrow Book".
-    - Include "Search Catalog" in "Borrow Book".
+5. Define relationships.
 6. Generate the `.puml` file and visualize it using PlantUML.
