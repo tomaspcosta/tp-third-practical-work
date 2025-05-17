@@ -1,9 +1,3 @@
-% ==================================================
-% Use Case Diagram Editor in Prolog
-% Provides interactive creation of actors, use cases, and their relationships,
-% and exports the diagram to a PlantUML (.puml) file.
-% ==================================================
-
 :- use_module(library(readutil)). % For reading user input
 :- use_module(library(lists)).    % For list utilities
 
@@ -21,7 +15,6 @@
 % Entry Point & Initial Menu
 % -------------------------------
 
-% Program entry point.
 start :-
     choose_mode.
 
@@ -80,15 +73,16 @@ clear_data :-
 % Displays the main menu for managing elements, relationships, viewing, exporting, etc.
 main_menu :-
     nl,
-    ( system(SName) -> format('Current System/Package: ~w~n', [SName]) ; write('No system/package defined yet. Consider setting one (Option 6).~n')),
+    ( system(SName) -> format('Current System/Package: ~w~n', [SName]) ; write('No system/package defined yet. Consider setting one (Option 7).~n')), % Note: Option number for system name changed
     write('=== Main Menu ==='), nl,
     write('1. Manage Elements (Actors, Use Cases)'), nl,
     write('2. Manage Relationships'), nl,
-    write('3. View Diagram Details'), nl,
-    write('4. Generate .puml Diagram File'), nl,      
-    write('5. Show Use Case Count'), nl,     
-    write('6. Change/Define System Name'), nl,
-    write('7. Return to Initial Menu (clears current diagram)'), nl,
+    write('3. Remove Elements/Relationships'), nl,
+    write('4. View Diagram Details'), nl,
+    write('5. Generate .puml Diagram File'), nl,
+    write('6. Show Use Case Count'), nl,
+    write('7. Change/Define System Name'), nl,
+    write('8. Return to Initial Menu (clears current diagram)'), nl,
     write('0. Exit Program'), nl,
     write('Choose an option: '),
     read_line_to_string(user_input, Input),
@@ -100,11 +94,12 @@ main_menu :-
 % Handles user selection from the main menu.
 handle_main_menu_choice(1) :- manage_elements_menu, main_menu.
 handle_main_menu_choice(2) :- manage_relationships_menu, main_menu.
-handle_main_menu_choice(3) :- view_diagram_details_top_menu, main_menu.
-handle_main_menu_choice(4) :- action_generate_puml_file, main_menu.
-handle_main_menu_choice(5) :- count_use_cases_in_system_detail, main_menu.
-handle_main_menu_choice(6) :- action_set_system_name, main_menu.
-handle_main_menu_choice(7) :- action_return_to_initial_menu.
+handle_main_menu_choice(3) :- manage_remove_menu, main_menu.
+handle_main_menu_choice(4) :- view_diagram_details_top_menu, main_menu.
+handle_main_menu_choice(5) :- action_generate_puml_file, main_menu.
+handle_main_menu_choice(6) :- count_use_cases_in_system_detail, main_menu.
+handle_main_menu_choice(7) :- action_set_system_name, main_menu.
+handle_main_menu_choice(8) :- action_return_to_initial_menu.
 handle_main_menu_choice(0) :- action_exit_program.
 handle_main_menu_choice(_) :- write('Invalid option number. Please try again.'), nl, main_menu.
 
@@ -121,7 +116,6 @@ action_exit_program :-
 % ==================================================
 % 1. Manage Elements Menu & Actions
 % ==================================================
-
 % Menu for adding actors or use cases.
 manage_elements_menu :-
     nl,
@@ -165,7 +159,6 @@ action_add_use_case :-
 % ==================================================
 % 2. Manage Relationships Menu & Actions
 % ==================================================
-
 % Menu for adding associations, includes, extends, and generalizations.
 manage_relationships_menu :-
     nl,
@@ -330,9 +323,8 @@ add_use_case_generalization_interaction :-
 % ==================================================
 % 3. View Diagram Details Menu & Actions
 % ==================================================
-
 % This menu lets you see everything or just specific details about your diagram.
-view_diagram_details_top_menu :- % New top-level menu for viewing details
+view_diagram_details_top_menu :-
     nl,
     write('--- View Diagram Details ---'), nl,
     write('1. List Everything'), nl,
@@ -362,7 +354,6 @@ view_specific_details_menu :-
     write('5. List <<extend>> Relations'), nl,
     write('6. List Actor Generalizations (Actor --|> Actor)'), nl,
     write('7. List Use Case Generalizations (Use Case --|> Use Case)'), nl,
-    % "List Everything" is now one level up
     write('0. Back to View Diagram Details Menu'), nl,
     write('Choose an option: '),
     read_line_to_string(user_input, Input),
@@ -411,41 +402,41 @@ count_use_cases_in_system_detail :-
 % list_all_associations_detail0: Lists all actor usecase associations
 list_all_associations_detail :-
     nl, write('--- Associations (Actor -- Use Case) ---'), nl,
-    findall(assoc(Actor, UC), association(Actor, UC), Associations),
+    findall(association(Actor, UC), association(Actor, UC), Associations),
     ( Associations == [] -> write('No associations defined.')
-    ; forall(member(assoc(A, U), Associations), format('  ~w -- ~w~n', [A, U]))
+    ; print_relationship_list_indexed(Associations, 1, '--')
     ), nl.
 
 % list_all_includes_detail/0: Lists all include relationships.
 list_all_includes_detail :-
     nl, write('--- <<include>> Relations (Base UC ..> Included UC) ---'), nl,
-    findall(incl(Base, Incl), include(Base, Incl), Includes),
+    findall(include(Base, Incl), include(Base, Incl), Includes),
     ( Includes == [] -> write('No <<include>> relations defined.')
-    ; forall(member(incl(B, I), Includes), format('  ~w ..> ~w : <<include>>~n', [B, I]))
+    ; print_relationship_list_indexed(Includes, 1, '..> <<include>>')
     ), nl.
 
 % list_all_extends_detail/0: Lists all extend relationships.
 list_all_extends_detail :-
     nl, write('--- <<extend>> Relations (Extending UC ..> Base UC) ---'), nl,
-    findall(ext(Extending, Base), extend(Extending, Base), Extends),
+    findall(extend(Extending, Base), extend(Extending, Base), Extends),
     ( Extends == [] -> write('No <<extend>> relations defined.')
-    ; forall(member(ext(E, B), Extends), format('  ~w ..> ~w : <<extend>>~n', [E, B]))
+    ; print_relationship_list_indexed(Extends, 1, '..> <<extend>>')
     ), nl.
 
 % list_all_actor_generalizations_detail/0: Lists all actor generalizations.
 list_all_actor_generalizations_detail :-
     nl, write('--- Actor Generalizations (Child Actor --|> Parent Actor) ---'), nl,
-    findall(gen(Child, Parent), actor_generalization(Child, Parent), ActorGens),
+    findall(actor_generalization(Child, Parent), actor_generalization(Child, Parent), ActorGens),
     ( ActorGens == [] -> write('No actor generalizations defined.')
-    ; forall(member(gen(C, P), ActorGens), format('  ~w --|> ~w~n', [C, P]))
+    ; print_relationship_list_indexed(ActorGens, 1, '--|>')
     ), nl.
 
 % list_all_uc_generalizations_detail/0: Lists all use case generalizations.
 list_all_uc_generalizations_detail :-
     nl, write('--- Use Case Generalizations (Child UC --|> Parent UC) ---'), nl,
-    findall(gen(Child, Parent), generalization(Child, Parent), UCGens),
+    findall(generalization(Child, Parent), generalization(Child, Parent), UCGens),
     ( UCGens == [] -> write('No use case generalizations defined.')
-    ; forall(member(gen(C, P), UCGens), format('  ~w --|> ~w~n', [C, P]))
+    ; print_relationship_list_indexed(UCGens, 1, '--|>')
     ), nl.
 
 % list_everything_detail/0: Lists all elements and relationships in the diagram.
@@ -463,6 +454,111 @@ list_everything_detail :-
     list_all_actor_generalizations_detail,
     list_all_uc_generalizations_detail,
     write('===== End of Summary ====='), nl.
+
+
+% ==================================================
+% 7. Remove Elements/Relationships Menu & Actions
+% ==================================================
+manage_remove_menu :-
+    nl,
+    write('--- Remove Elements/Relationships ---'), nl,
+    write('1. Remove Actor (and related connections)'), nl,
+    write('2. Remove Use Case (and related connections)'), nl,
+    write('3. Remove Association'), nl,
+    write('4. Remove <<include>> Relation'), nl,
+    write('5. Remove <<extend>> Relation'), nl,
+    write('6. Remove Actor Generalization'), nl,
+    write('7. Remove Use Case Generalization'), nl,
+    write('0. Back to Main Menu'), nl,
+    write('Choose an option: '),
+    read_line_to_string(user_input, Input),
+    ( atom_number(Input, Choice) ->
+        process_remove_menu_choice(Choice)
+    ; write('Invalid input. Please enter a number.'), nl, manage_remove_menu
+    ).
+
+process_remove_menu_choice(1) :- action_remove_actor, manage_remove_menu.
+process_remove_menu_choice(2) :- action_remove_use_case, manage_remove_menu.
+process_remove_menu_choice(3) :- action_remove_association, manage_remove_menu.
+process_remove_menu_choice(4) :- action_remove_include, manage_remove_menu.
+process_remove_menu_choice(5) :- action_remove_extend, manage_remove_menu.
+process_remove_menu_choice(6) :- action_remove_actor_generalization, manage_remove_menu.
+process_remove_menu_choice(7) :- action_remove_uc_generalization, manage_remove_menu.
+process_remove_menu_choice(0).
+process_remove_menu_choice(_) :- write('Invalid option. Please try again.'), nl, manage_remove_menu.
+
+action_remove_actor :-
+    nl, write('--- Remove Actor ---'), nl,
+    findall(Actor, actor(Actor), Actors),
+    ( Actors == [] -> write('No actors to remove.'), nl
+    ; write('Actors:'), nl,
+      print_list_indexed(Actors, 1),
+      write('Enter number of actor to remove (or 0 to cancel): '),
+      read_line_to_string(user_input, IndexStr),
+      ( IndexStr == "0" -> write('Cancelled.'), nl
+      ; atom_number(IndexStr, Index), get_nth_item(actor, Index, ActorToRemove) ->
+          retract(actor(ActorToRemove)),
+          retractall(association(ActorToRemove, _)),
+          retractall(association(_, ActorToRemove)),
+          retractall(actor_generalization(ActorToRemove, _)),
+          retractall(actor_generalization(_, ActorToRemove)),
+          format('Actor "~w" and all its connections removed.~n', [ActorToRemove])
+      ; write('Invalid actor selection or actor not found.'), nl
+      )
+    ).
+
+action_remove_use_case :-
+    nl, write('--- Remove Use Case ---'), nl,
+    findall(UC, use_case(UC), UseCases),
+    ( UseCases == [] -> write('No use cases to remove.'), nl
+    ; write('Use Cases:'), nl,
+      print_list_indexed(UseCases, 1),
+      write('Enter number of use case to remove (or 0 to cancel): '),
+      read_line_to_string(user_input, IndexStr),
+      ( IndexStr == "0" -> write('Cancelled.'), nl
+      ; atom_number(IndexStr, Index), get_nth_item(use_case, Index, UCToRemove) ->
+          retract(use_case(UCToRemove)),
+          retractall(association(_, UCToRemove)),
+          retractall(include(UCToRemove, _)),
+          retractall(include(_, UCToRemove)),
+          retractall(extend(UCToRemove, _)),
+          retractall(extend(_, UCToRemove)),
+          retractall(generalization(UCToRemove, _)),
+          retractall(generalization(_, UCToRemove)),
+          format('Use Case "~w" and all its connections removed.~n', [UCToRemove])
+      ; write('Invalid use case selection or use case not found.'), nl
+      )
+    ).
+
+action_remove_association :-
+    remove_relationship_interactive(association, 'Association', '--').
+action_remove_include :-
+    remove_relationship_interactive(include, '<<include>> Relation', '..> <<include>>').
+action_remove_extend :-
+    remove_relationship_interactive(extend, '<<extend>> Relation', '..> <<extend>>').
+action_remove_actor_generalization :-
+    remove_relationship_interactive(actor_generalization, 'Actor Generalization', '--|>').
+action_remove_uc_generalization :-
+    remove_relationship_interactive(generalization, 'Use Case Generalization', '--|>').
+
+% Generic helper to remove a specific relationship
+remove_relationship_interactive(Functor, DisplayName, Separator) :-
+    nl, format('--- Remove ~w ---~n', [DisplayName]),
+    Goal =.. [Functor, _Arg1, _Arg2],
+    findall(Goal, Goal, Relationships),
+    ( Relationships == [] -> format('No ~ws to remove.~n', [DisplayName]), nl
+    ; format('~ws:~n', [DisplayName]),
+      print_relationship_list_indexed(Relationships, 1, Separator),
+      write('Enter number of relationship to remove (or 0 to cancel): '),
+      read_line_to_string(user_input, IndexStr),
+      ( IndexStr == "0" -> write('Cancelled.'), nl
+      ; atom_number(IndexStr, Index), nth1(Index, Relationships, RelToRemove) ->
+          retract(RelToRemove),
+          RelToRemove =.. [_, RelArg1, RelArg2],
+          format('~w: "~w" ~w "~w" removed.~n', [DisplayName, RelArg1, Separator, RelArg2])
+      ; write('Invalid selection or relationship not found.'), nl
+      )
+    ).
 
 % action_generate_puml_file/0: Prompts for filename and generates the PlantUML file.
 action_generate_puml_file :-
@@ -508,11 +604,20 @@ print_list_indexed([H|T], N) :-
     N1 is N + 1,
     print_list_indexed(T, N1).
 
-% get_nth_actor/2, get_nth_use_case/2: Retrieves the N-th actor/use case.
+% Helper to print relationship lists
+print_relationship_list_indexed([], _, _).
+print_relationship_list_indexed([Rel|T], N, Separator) :-
+    Rel =.. [_Functor, Arg1Rel, Arg2Rel],
+    format('~d. ~w ~w ~w~n', [N, Arg1Rel, Separator, Arg2Rel]),
+    N1 is N + 1,
+    print_relationship_list_indexed(T, N1, Separator).
+
+
+
 get_nth_actor(N, Actor) :- get_nth_item(actor, N, Actor).
 get_nth_use_case(N, UseCase) :- get_nth_item(use_case, N, UseCase).
 
-% get_nth_item/3: Retrieves the N-th item of a given type.
+% get_nth_item/3: Retrieves the N-th item of a given type (for single elements).
 get_nth_item(TypeAtom, N, ChosenItem) :-
     Goal =.. [TypeAtom, ItemNameVariable],
     findall(ItemNameVariable, Goal, ItemsList),
@@ -527,7 +632,7 @@ safe_name(InputName, SafeID) :-
     ;   atom(InputName)   -> atom_string(InputName, StringForProcessing)
     ;   number(InputName) -> number_string(InputName, StringForProcessing)
     ;   compound(InputName) -> term_string(InputName, StringForProcessing)
-    ;   var(InputName)    -> StringForProcessing = "unbound_variable_id"
+    ;   var(InputName)      -> StringForProcessing = "unbound_variable_id"
     ;   format(string(StringForProcessing), "~w", [InputName])
     ),
     string_lower(StringForProcessing, LowercaseString),
@@ -600,8 +705,6 @@ write_puml_content(Stream) :-
     ),
     write(Stream, "left to right direction"), nl(Stream),
     write(Stream, "skinparam packageStyle rectangle"), nl(Stream),
-    write(Stream, "skinparam actorStyle awesome"), nl(Stream),
-    write(Stream, "skinparam usecaseArrowFontSize 10"), nl(Stream),
     nl(Stream),
     write_actors_puml(Stream), nl(Stream),
     write_system_boundary_puml(Stream), nl(Stream),
