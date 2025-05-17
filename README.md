@@ -31,7 +31,7 @@ The program follows these steps:
 ## Features
 
 - **Interactive Menu**: A user-friendly menu system for managing elements and relationships.
-- **Dynamic Input**: Add actors, use cases, and relationships interactively.
+- **Dynamic Input**: Add and remove actors, use cases, and relationships interactively.
 - **System Boundary**: Define a system or package to group use cases.
 - **Relationship Handling**: Supports associations, generalizations, includes, and extends.
 - **Validation**: Ensures all relationships are valid and prevents duplicate entries.
