@@ -68,7 +68,7 @@ The program follows these steps:
         ```bash
         swipl main.pl
         ```
-    * At the Prolog prompt (`?-`), type `start.` to begin the application:
+    * Type the following to begin the application:
         ```prolog
         start.
         ```
