@@ -212,7 +212,7 @@ action_add_use_case :-
 % ==================================================
 % 2. Manage Relationships Menu & Actions
 % ==================================================
-% Menu for adding associations, includes, extends, and generalizations.
+% Menu to add associations, includes, extends, and generalizations.
 manage_relationships_menu :-
     nl,
     ansi_style(bold, B), ansi_style(fg_blue, BLU), ansi_style(reset, R),
@@ -611,7 +611,7 @@ action_remove_actor :-
       ansi_style(fg_yellow, YP), ansi_style(reset, RP),
       format('~sEnter number of actor to remove (or 0 to cancel): ~s', [YP, RP]),
       read_line_to_string(user_input, IndexStr),
-      ( IndexStr == "0" -> ansi_style(fg_yellow, YS), ansi_style(reset, RS_Cancel), format('~sCancelled.~s~n', [YS,RS_Cancel]) % Changed RS to RS_Cancel
+      ( IndexStr == "0" -> ansi_style(fg_yellow, YS), ansi_style(reset, RS_Cancel), format('~sCancelled.~s~n', [YS,RS_Cancel])
       ; atom_number(IndexStr, Index), get_nth_item(actor, Index, ActorToRemove) ->
           retract(actor(ActorToRemove)),
           retractall(association(ActorToRemove, _)),
@@ -697,7 +697,7 @@ action_generate_puml_file :-
     ; system(SystemName),
       ansi_style(reset, RS),
       format('~sThe default filename will be "~w.puml".~s~n', [RS, SystemName, RS]),
-      ansi_style(fg_yellow, YP), ansi_style(reset, R_Prompt), % Changed R to R_Prompt
+      ansi_style(fg_yellow, YP), ansi_style(reset, R_Prompt),
       format('~sEnter a custom filename (without .puml extension) or press Enter to use the default (or 0 to cancel): ~s', [YP, R_Prompt]),
       read_line_to_string(user_input, CustomNameInput),
       ( CustomNameInput == "0" -> true
