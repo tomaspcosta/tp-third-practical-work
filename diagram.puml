@@ -6,8 +6,8 @@ skinparam packageStyle rectangle
 
 actor "Tour Guide" as tour_guide
 actor "Minor Passenger" as minor_passenger
-actor "Passenger" as passenger
 actor "Passenger With Special Needs" as passenger_with_special_needs
+actor "Passenger" as passenger
 
 rectangle "<<System>>\nAirport" as airport_boundary {
   usecase "Group Check-In" as group_check_in
