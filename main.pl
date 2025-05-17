@@ -1,8 +1,13 @@
-:- use_module(library(readutil)). % For read_line_to_string
-:- use_module(library(lists)).    % For nth1/3, length/2
+% ==================================================
+% Use Case Diagram Editor in Prolog
+% Provides interactive creation of actors, use cases, and their relationships,
+% and exports the diagram to a PlantUML (.puml) file.
+% ==================================================
 
-% :- discontiguous handle_main_menu_choice/1. % Can be used if reordering is difficult
+:- use_module(library(readutil)). % For reading user input
+:- use_module(library(lists)).    % For list utilities
 
+% Dynamic predicates for storing diagram data.
 :- dynamic actor/1,
            use_case/1,
            association/2,          % actor_name, use_case_name
@@ -10,14 +15,17 @@
            extend/2,               % extending_uc_name, base_uc_name
            generalization/2,       % child_uc_name, parent_uc_name
            actor_generalization/2, % child_actor_name, parent_actor_name
-           system/1.               % Represents the main system/package
+           system/1.               % The main system/package name
 
 % -------------------------------
 % Entry Point & Initial Menu
 % -------------------------------
+
+% Program entry point.
 start :-
     choose_mode.
 
+% Displays the initial menu and prompts for user action.
 choose_mode :-
     nl,
     write('=== Initial Menu ==='), nl,
@@ -30,6 +38,7 @@ choose_mode :-
     ; write('Invalid input. Please enter a number.'), nl, choose_mode
     ).
 
+% Handles the users selection from the initial menu.
 handle_initial_choice(1) :-
     clear_data,
     action_set_system_name,
@@ -40,18 +49,20 @@ handle_initial_choice(_) :-
     write('Invalid option. Please try again.'), nl,
     choose_mode.
 
+% Prompts for and sets the system/package name.
 action_set_system_name :-
-    nl, % ADDED for spacing
+    nl,
     write('Enter system name for the diagram (this will act as the main package): '),
     read_line_to_string(user_input, SystemName),
     ( SystemName == "" ->
         write('System name cannot be empty. Please try again.'), nl,
-        action_set_system_name % Re-prompt if empty
-    ; (retract(system(_OldName)) -> true ; true), % Remove old system name if exists
+        action_set_system_name
+    ; (retract(system(_OldName)) -> true ; true),
       assertz(system(SystemName)),
       format('System (main package) set to "~w".~n', [SystemName])
     ).
 
+% Removes all stored data, resetting the diagram.
 clear_data :-
     retractall(actor(_)),
     retractall(use_case(_)),
@@ -65,6 +76,8 @@ clear_data :-
 % ==================================================
 % Main Menu
 % ==================================================
+
+% Displays the main menu for managing elements, relationships, viewing, exporting, etc.
 main_menu :-
     nl,
     ( system(SName) -> format('Current System/Package: ~w~n', [SName]) ; write('No system/package defined yet. Consider setting one (Option 6).~n')),
@@ -84,6 +97,7 @@ main_menu :-
     ; write('Invalid input. Please enter a number.'), nl, main_menu
     ).
 
+% Handles user selection from the main menu.
 handle_main_menu_choice(1) :- manage_elements_menu, main_menu.
 handle_main_menu_choice(2) :- manage_relationships_menu, main_menu.
 handle_main_menu_choice(3) :- view_diagram_details_top_menu, main_menu.
@@ -94,17 +108,21 @@ handle_main_menu_choice(7) :- action_return_to_initial_menu.
 handle_main_menu_choice(0) :- action_exit_program.
 handle_main_menu_choice(_) :- write('Invalid option number. Please try again.'), nl, main_menu.
 
+% Clears all data and returns to the initial menu.
 action_return_to_initial_menu :-
     write('Clearing current diagram and returning to initial menu...'), nl,
     clear_data,
     choose_mode.
 
+% Exits the program.
 action_exit_program :-
     write('Goodbye!'), nl.
 
 % ==================================================
 % 1. Manage Elements Menu & Actions
 % ==================================================
+
+% Menu for adding actors or use cases.
 manage_elements_menu :-
     nl,
     write('--- Manage Elements ---'), nl,
@@ -118,11 +136,13 @@ manage_elements_menu :-
     ; write('Invalid input. Please enter a number.'), nl, manage_elements_menu
     ).
 
+% Handles selection for adding an actor or use case.
 process_manage_elements_choice(1) :- action_add_actor, manage_elements_menu.
 process_manage_elements_choice(2) :- action_add_use_case, manage_elements_menu.
 process_manage_elements_choice(0).
 process_manage_elements_choice(_) :- write('Invalid option. Please try again.'), nl, manage_elements_menu.
 
+% Adds a new actor to the diagram.
 action_add_actor :-
     write('Enter actor name (or 0 to cancel): '),
     read_line_to_string(user_input, ActorInput),
@@ -132,6 +152,7 @@ action_add_actor :-
     ; assertz(actor(ActorInput)), format('Actor added: ~w~n', [ActorInput])
     ).
 
+% Adds a new use case to the diagram.
 action_add_use_case :-
     write('Enter use case name (or 0 to cancel): '),
     read_line_to_string(user_input, UseCaseInput),
@@ -144,6 +165,8 @@ action_add_use_case :-
 % ==================================================
 % 2. Manage Relationships Menu & Actions
 % ==================================================
+
+% Menu for adding associations, includes, extends, and generalizations.
 manage_relationships_menu :-
     nl,
     write('--- Manage Relationships ---'), nl,
@@ -159,6 +182,7 @@ manage_relationships_menu :-
     ; write('Invalid input. Please enter a number.'), nl, manage_relationships_menu
     ).
 
+% Handles selection for relationship management.
 process_manage_relationships_choice(1) :- action_add_association, manage_relationships_menu.
 process_manage_relationships_choice(2) :- action_add_include, manage_relationships_menu.
 process_manage_relationships_choice(3) :- action_add_extend, manage_relationships_menu.
@@ -166,6 +190,7 @@ process_manage_relationships_choice(4) :- action_manage_generalizations, manage_
 process_manage_relationships_choice(0).
 process_manage_relationships_choice(_) :- write('Invalid option. Please try again.'), nl, manage_relationships_menu.
 
+% Adds an association between an actor and a use case.
 action_add_association :-
     ( list_actors_or_prompt_add ->
         write('Choose actor by number for association (or 0 to cancel): '),
@@ -190,6 +215,7 @@ action_add_association :-
     ; true
     ).
 
+% Adds an include relationship between use cases.
 action_add_include :-
     ( list_use_cases_or_prompt_add(2) ->
         write('Choose base use case (FROM which includes) (number) (or 0 to cancel): '),
@@ -212,6 +238,7 @@ action_add_include :-
     ; true
     ).
 
+% Adds an extend relationship between use cases.
 action_add_extend :-
     ( list_use_cases_or_prompt_add(2) ->
         write('Choose extending use case (FROM which extends) (number) (or 0 to cancel): '),
@@ -234,6 +261,7 @@ action_add_extend :-
     ; true
     ).
 
+% Menu for adding generalizations between actors or use cases.
 action_manage_generalizations :-
     nl,
     write('--- Add Generalization ---'), nl,
@@ -247,11 +275,13 @@ action_manage_generalizations :-
     ; write('Invalid input. Please enter a number.'), nl, action_manage_generalizations
     ).
 
+% Handles the type of generalization to add.
 process_generalization_type_choice(1) :- add_actor_generalization_interaction, action_manage_generalizations.
 process_generalization_type_choice(2) :- add_use_case_generalization_interaction, action_manage_generalizations.
 process_generalization_type_choice(0).
 process_generalization_type_choice(_) :- write('Invalid generalization type choice.'), nl, action_manage_generalizations.
 
+% Adds a generalization between two actors.
 add_actor_generalization_interaction :-
     ( list_actors_or_prompt_add(2) ->
         write('Choose child actor (specific type) (number) (or 0 to cancel): '),
@@ -274,6 +304,7 @@ add_actor_generalization_interaction :-
     ; !
     ).
 
+% Adds a generalization between two use cases.
 add_use_case_generalization_interaction :-
     ( list_use_cases_or_prompt_add(2) ->
         write('Choose child use case (specific type) (number) (or 0 to cancel): '),
@@ -297,13 +328,15 @@ add_use_case_generalization_interaction :-
     ).
 
 % ==================================================
-% 3. View Diagram Details Menu & Actions (RESTRUCTURED)
+% 3. View Diagram Details Menu & Actions
 % ==================================================
+
+% This menu lets you see everything or just specific details about your diagram.
 view_diagram_details_top_menu :- % New top-level menu for viewing details
     nl,
     write('--- View Diagram Details ---'), nl,
     write('1. List Everything'), nl,
-    write('2. List Specific Details...'), nl,
+    write('2. List Specific Details'), nl,
     write('0. Back to Main Menu'), nl,
     write('Choose an option: '),
     read_line_to_string(user_input, Input),
@@ -312,12 +345,14 @@ view_diagram_details_top_menu :- % New top-level menu for viewing details
     ; write('Invalid input. Please enter a number.'), nl, view_diagram_details_top_menu
     ).
 
-process_view_details_top_choice(1) :- list_everything_detail, view_diagram_details_top_menu. % List all and return here
-process_view_details_top_choice(2) :- view_specific_details_menu, view_diagram_details_top_menu. % Go to specific, then return here
-process_view_details_top_choice(0). % Back to Main Menu (handled by main_menu loop)
+% This part handles what you want to see in the details menu.
+process_view_details_top_choice(1) :- list_everything_detail, view_diagram_details_top_menu.
+process_view_details_top_choice(2) :- view_specific_details_menu, view_diagram_details_top_menu.
+process_view_details_top_choice(0).
 process_view_details_top_choice(_) :- write('Invalid choice.'), nl, view_diagram_details_top_menu.
 
-view_specific_details_menu :- % Renamed from view_diagram_details_menu
+% This menu lets you pick exactly what you want to list (actors, use cases, etc).
+view_specific_details_menu :-
     nl,
     write('--- List Specific Details ---'), nl,
     write('1. List All Actors'), nl,
@@ -336,6 +371,7 @@ view_specific_details_menu :- % Renamed from view_diagram_details_menu
     ; write('Invalid input. Please enter a number.'), nl, view_specific_details_menu
     ).
 
+% This part handles which specific list you want to see.
 process_specific_details_choice(1) :- list_all_actors_detail, view_specific_details_menu.
 process_specific_details_choice(2) :- list_all_use_cases_detail, view_specific_details_menu.
 process_specific_details_choice(3) :- list_all_associations_detail, view_specific_details_menu.
@@ -343,9 +379,10 @@ process_specific_details_choice(4) :- list_all_includes_detail, view_specific_de
 process_specific_details_choice(5) :- list_all_extends_detail, view_specific_details_menu.
 process_specific_details_choice(6) :- list_all_actor_generalizations_detail, view_specific_details_menu.
 process_specific_details_choice(7) :- list_all_uc_generalizations_detail, view_specific_details_menu.
-process_specific_details_choice(0). % Back to view_diagram_details_top_menu
+process_specific_details_choice(0).
 process_specific_details_choice(_) :- write('Invalid choice.'), nl, view_specific_details_menu.
 
+% This function prints all the actors you have.
 list_all_actors_detail :-
     nl, write('--- Actors ---'), nl,
     findall(Actor, actor(Actor), Actors),
@@ -353,6 +390,7 @@ list_all_actors_detail :-
     ; print_list_indexed(Actors, 1)
     ), nl.
 
+% This one prints all the use cases.
 list_all_use_cases_detail :-
     nl, write('--- Use Cases ---'), nl,
     findall(UseCase, use_case(UseCase), UseCases),
@@ -360,6 +398,7 @@ list_all_use_cases_detail :-
     ; print_list_indexed(UseCases, 1)
     ), nl.
 
+% This shows how many use cases are in your system.
 count_use_cases_in_system_detail :-
     nl, write('--- Count of Use Cases in System/Package ---'), nl,
     ( system(SystemName) ->
@@ -369,6 +408,7 @@ count_use_cases_in_system_detail :-
     ; write('No system/package defined. Cannot count use cases.'), nl
     ), nl.
 
+% list_all_associations_detail0: Lists all actor usecase associations
 list_all_associations_detail :-
     nl, write('--- Associations (Actor -- Use Case) ---'), nl,
     findall(assoc(Actor, UC), association(Actor, UC), Associations),
@@ -376,6 +416,7 @@ list_all_associations_detail :-
     ; forall(member(assoc(A, U), Associations), format('  ~w -- ~w~n', [A, U]))
     ), nl.
 
+% list_all_includes_detail/0: Lists all include relationships.
 list_all_includes_detail :-
     nl, write('--- <<include>> Relations (Base UC ..> Included UC) ---'), nl,
     findall(incl(Base, Incl), include(Base, Incl), Includes),
@@ -383,6 +424,7 @@ list_all_includes_detail :-
     ; forall(member(incl(B, I), Includes), format('  ~w ..> ~w : <<include>>~n', [B, I]))
     ), nl.
 
+% list_all_extends_detail/0: Lists all extend relationships.
 list_all_extends_detail :-
     nl, write('--- <<extend>> Relations (Extending UC ..> Base UC) ---'), nl,
     findall(ext(Extending, Base), extend(Extending, Base), Extends),
@@ -390,6 +432,7 @@ list_all_extends_detail :-
     ; forall(member(ext(E, B), Extends), format('  ~w ..> ~w : <<extend>>~n', [E, B]))
     ), nl.
 
+% list_all_actor_generalizations_detail/0: Lists all actor generalizations.
 list_all_actor_generalizations_detail :-
     nl, write('--- Actor Generalizations (Child Actor --|> Parent Actor) ---'), nl,
     findall(gen(Child, Parent), actor_generalization(Child, Parent), ActorGens),
@@ -397,6 +440,7 @@ list_all_actor_generalizations_detail :-
     ; forall(member(gen(C, P), ActorGens), format('  ~w --|> ~w~n', [C, P]))
     ), nl.
 
+% list_all_uc_generalizations_detail/0: Lists all use case generalizations.
 list_all_uc_generalizations_detail :-
     nl, write('--- Use Case Generalizations (Child UC --|> Parent UC) ---'), nl,
     findall(gen(Child, Parent), generalization(Child, Parent), UCGens),
@@ -404,6 +448,7 @@ list_all_uc_generalizations_detail :-
     ; forall(member(gen(C, P), UCGens), format('  ~w --|> ~w~n', [C, P]))
     ), nl.
 
+% list_everything_detail/0: Lists all elements and relationships in the diagram.
 list_everything_detail :-
     nl, write('============================='), nl,
     write('=== Full Diagram Summary ===='), nl,
@@ -419,6 +464,7 @@ list_everything_detail :-
     list_all_uc_generalizations_detail,
     write('===== End of Summary ====='), nl.
 
+% action_generate_puml_file/0: Prompts for filename and generates the PlantUML file.
 action_generate_puml_file :-
     ( \+ system(_) ->
         write('No system/package defined. Please define a system name first (Main Menu option 6).'), nl
@@ -435,11 +481,14 @@ action_generate_puml_file :-
 % -------------------------------
 % Helpers (Listing, Nth item, Sanitization)
 % -------------------------------
+
+% list_actors_or_prompt_add/0, list_use_cases_or_prompt_add/0: Ensures enough actors/use cases exist for selection.
 list_actors_or_prompt_add :- list_items_or_prompt_add(actor, 'actors', 'actor', 1).
 list_actors_or_prompt_add(MinCount) :- list_items_or_prompt_add(actor, 'actors', 'actor', MinCount).
 list_use_cases_or_prompt_add :- list_items_or_prompt_add(use_case, 'use cases', 'use case', 1).
 list_use_cases_or_prompt_add(MinCount) :- list_items_or_prompt_add(use_case, 'use cases', 'use case', MinCount).
 
+% list_items_or_prompt_add/4: Lists items of a given type, or prompts to add more if not enough.
 list_items_or_prompt_add(TypeAtom, PluralName, _SingularName, MinCount) :-
     Goal =.. [TypeAtom, ItemNameVariable],
     findall(ItemNameVariable, Goal, ItemsList),
@@ -452,15 +501,18 @@ list_items_or_prompt_add(TypeAtom, PluralName, _SingularName, MinCount) :-
       true
     ).
 
+% print_list_indexed/2: Prints a list with indices.
 print_list_indexed([], _).
 print_list_indexed([H|T], N) :-
     format('~d. ~w~n', [N, H]),
     N1 is N + 1,
     print_list_indexed(T, N1).
 
+% get_nth_actor/2, get_nth_use_case/2: Retrieves the N-th actor/use case.
 get_nth_actor(N, Actor) :- get_nth_item(actor, N, Actor).
 get_nth_use_case(N, UseCase) :- get_nth_item(use_case, N, UseCase).
 
+% get_nth_item/3: Retrieves the N-th item of a given type.
 get_nth_item(TypeAtom, N, ChosenItem) :-
     Goal =.. [TypeAtom, ItemNameVariable],
     findall(ItemNameVariable, Goal, ItemsList),
@@ -469,6 +521,7 @@ get_nth_item(TypeAtom, N, ChosenItem) :-
     ; !, fail
     ).
 
+% safe_name/2: Converts a name to a PlantUML-safe identifier.
 safe_name(InputName, SafeID) :-
     (   string(InputName) -> StringForProcessing = InputName
     ;   atom(InputName)   -> atom_string(InputName, StringForProcessing)
@@ -482,16 +535,19 @@ safe_name(InputName, SafeID) :-
     remove_non_alnum_underscore(UnderscoredString, CleanedString),
     ensure_valid_plantuml_id(CleanedString, LowercaseString, SafeID).
 
+% replace_problematic_chars/2: Replaces spaces, dashes, tabs, and newlines with underscores.
 replace_problematic_chars(In, Out) :-
     replace_chars(In, " ", "_", Temp1),
     replace_chars(Temp1, "-", "_", Temp2),
     replace_chars(Temp2, "\t", "_", Temp3),
     replace_chars(Temp3, "\n", "_", Out).
 
+% replace_chars/4: Helper for replacing characters in a string.
 replace_chars(Input, ToReplace, Replacement, Output) :-
     split_string(Input, ToReplace, ToReplace, Parts),
     atomic_list_concat(Parts, Replacement, Output).
 
+% remove_non_alnum_underscore/2: Removes all characters except alphanumeric and underscore.
 remove_non_alnum_underscore(InputString, OutputString) :-
     string_chars(InputString, Chars),
     include(is_plantuml_safe_char, Chars, SafeChars),
@@ -500,6 +556,7 @@ remove_non_alnum_underscore(InputString, OutputString) :-
 is_plantuml_safe_char(Char) :-
     char_type(Char, alnum) ; Char == '_'.
 
+% ensure_valid_plantuml_id/3: Ensures the identifier is valid for PlantUML.
 ensure_valid_plantuml_id(CleanedString, OriginalLowerString, SafeID) :-
     ( CleanedString == "" ->
         string_chars(OriginalLowerString, OriginalChars),
@@ -518,6 +575,8 @@ ensure_valid_plantuml_id(CleanedString, OriginalLowerString, SafeID) :-
 % -------------------------------
 % Generate .puml file
 % -------------------------------
+
+% generate_puml_file/1: Generates a PlantUML file with the current diagram.
 generate_puml_file(BaseFileNameAtomOrString) :-
     ( atom(BaseFileNameAtomOrString) -> BaseFileName = BaseFileNameAtomOrString
     ; string(BaseFileNameAtomOrString) -> atom_string(BaseFileName, BaseFileNameAtomOrString)
@@ -533,6 +592,7 @@ generate_puml_file(BaseFileNameAtomOrString) :-
       format('Diagram "~w" saved to file "~w"~n', [DiagramName, FileName])
     ).
 
+% write_puml_content/1: Writes the PlantUML content to the given stream.
 write_puml_content(Stream) :-
     write(Stream, '@startuml'), nl(Stream),
     ( system(SysName) -> format(Stream, "title Use Case Diagram for ~w~n~n", [SysName])
@@ -552,9 +612,11 @@ write_puml_content(Stream) :-
     write_actor_generalizations_puml(Stream), nl(Stream),
     write(Stream, "@enduml"), nl(Stream).
 
+% write_actors_puml/1: Writes all actors in PlantUML format.
 write_actors_puml(Stream) :-
     forall(actor(A), ( safe_name(A, SafeA), format(Stream, 'actor "~w" as ~w~n', [A, SafeA]) )).
 
+% write_system_boundary_puml/1: Writes the system/package boundary and use cases.
 write_system_boundary_puml(Stream) :-
     ( system(SystemName) ->
         safe_name(SystemName, SafeSystemNameId),
@@ -564,13 +626,22 @@ write_system_boundary_puml(Stream) :-
     ; forall(use_case(U), ( safe_name(U, SafeU), format(Stream, 'usecase "~w" as ~w~n', [U, SafeU]) ))
     ).
 
+% write_associations_puml/1: Writes all actor-use case associations.
 write_associations_puml(Stream) :-
     forall(association(Actor, UseCase), ( safe_name(Actor, SafeActor), safe_name(UseCase, SafeUseCase), format(Stream, '~w -- ~w~n', [SafeActor, SafeUseCase]) )).
+
+% write_includes_puml/1: Writes all include relationships.
 write_includes_puml(Stream) :-
     forall(include(BaseUC, IncludedUC), ( safe_name(BaseUC, SafeBaseUC), safe_name(IncludedUC, SafeIncludedUC), format(Stream, '~w ..> ~w : <<include>>~n', [SafeBaseUC, SafeIncludedUC]) )).
+
+% write_extends_puml/1: Writes all extend relationships.
 write_extends_puml(Stream) :-
     forall(extend(ExtendingUC, BaseUC), ( safe_name(ExtendingUC, SafeExtendingUC), safe_name(BaseUC, SafeBaseUC), format(Stream, '~w ..> ~w : <<extend>>~n', [SafeExtendingUC, SafeBaseUC]) )).
+
+% write_uc_generalizations_puml/1: Writes all use case generalizations.
 write_uc_generalizations_puml(Stream) :-
     forall(generalization(ChildUC, ParentUC), ( safe_name(ChildUC, SafeChildUC), safe_name(ParentUC, SafeParentUC), format(Stream, '~w --|> ~w~n', [SafeChildUC, SafeParentUC]) )).
+
+% write_actor_generalizations_puml/1: Writes all actor generalizations.
 write_actor_generalizations_puml(Stream) :-
     forall(actor_generalization(ChildActor, ParentActor), ( safe_name(ChildActor, SafeChildActor), safe_name(ParentActor, SafeParentActor), format(Stream, '~w --|> ~w~n', [SafeChildActor, SafeParentActor]) )).
