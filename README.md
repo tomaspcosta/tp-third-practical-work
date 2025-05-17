@@ -62,10 +62,16 @@ The program follows these steps:
 
 ## Example Workflow
 
-1. Start the program:
-    ```bash
-    swipl main.pl
-    ```
+1.  **Start the program and initiate the menu**:
+    * Open your terminal and navigate to the directory containing `main.pl`.
+    * Load the file into SWI-Prolog:
+        ```bash
+        swipl main.pl
+        ```
+    * Type the following to begin the application:
+        ```prolog
+        start.
+        ```
 2. Define a system name (e.g., "Library System").
 3. Add actors (e.g., "Librarian", "Member").
 4. Add use cases (e.g., "Borrow Book", "Return Book").
